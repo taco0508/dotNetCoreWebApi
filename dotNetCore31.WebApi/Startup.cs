@@ -1,3 +1,11 @@
+using AutoMapper;
+using dotNetCore31.Business.Infrastructure.Mappings;
+using dotNetCore31.Business.IServices;
+using dotNetCore31.Business.Services;
+using dotNetCore31.DataAccess.Infrastructure.Helpers.Connection;
+using dotNetCore31.DataAccess.IRepositories;
+using dotNetCore31.DataAccess.Repositories;
+using dotNetCore31.WebApi.Infrastructure.Mappings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,14 +23,29 @@ namespace dotNetCore31.WebApi
             this._configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //Connection
+            services.AddTransient<IConnectionHelper, ConnectionHelper>();
+            services.AddTransient<IConnectionStringHelper, ConnectionStringHelper>();
+
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
+            services.AddTransient<ICustomerService, CustomerService>();
+
+            //AutoMapper 做法1:
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            //AutoMapper 做法2:
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<ControllerMappingProfile>();
+                cfg.AddProfile<ServiceMappingProfile>();
+            });
+            services.AddScoped<IMapper>(s => config.CreateMapper());
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

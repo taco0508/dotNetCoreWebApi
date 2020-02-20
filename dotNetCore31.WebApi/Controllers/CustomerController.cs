@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using dotNetCore31.Business.Dtos;
+using dotNetCore31.Business.IServices;
+using dotNetCore31.WebApi.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dotNetCore31.WebApi.Controllers
 {
@@ -6,10 +12,28 @@ namespace dotNetCore31.WebApi.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        private readonly IMapper _mapper;
+        private readonly ICustomerService _customerService;
+
+        public CustomerController(
+            IMapper mapper,
+            ICustomerService customerService)
         {
-            return Ok("Get All Customers");
+            this._mapper = mapper;
+            this._customerService = customerService;
+        }
+
+        /// <summary>
+        /// 取得客戶清單
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetCustomerList")]
+        public async Task<IActionResult> GetCustomerListAsync()
+        {
+            var customerIds = new string[] { "ALFKI", "ANATR", "ANTON" };
+            var data = await this._customerService.GetCustomerListAsync(customerIds);
+            var result = this._mapper.Map<IEnumerable<CustomersDto>, IEnumerable<CustomersViewModel>>(data);
+            return Ok(result);
         }
     }
 }
