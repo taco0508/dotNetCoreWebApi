@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using dotNetCore31.Business.Dtos;
 using dotNetCore31.Business.IServices;
+using dotNetCore31.WebApi.Infrastructure.ActionFilters;
 using dotNetCore31.WebApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace dotNetCore31.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [CoreProfilerActionFilter]
     public class CustomerController : ControllerBase
     {
         private readonly IMapper _mapper;

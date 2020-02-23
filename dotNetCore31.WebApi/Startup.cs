@@ -1,6 +1,5 @@
-using System;
-using System.IO;
 using AutoMapper;
+using CoreProfiler.Web;
 using dotNetCore31.Business.Infrastructure.Mappings;
 using dotNetCore31.Business.IServices;
 using dotNetCore31.Business.Services;
@@ -14,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
 
 namespace dotNetCore31.WebApi
 {
@@ -71,6 +72,9 @@ namespace dotNetCore31.WebApi
             }
 
             app.UseRouting();
+
+            //Coreprofiler
+            app.UseCoreProfiler(true); //drillDown=true，查看性能分析結果時嘗試從外部應用程序向下鑽取子請求
 
             //Swagger
             app.UseSwagger();

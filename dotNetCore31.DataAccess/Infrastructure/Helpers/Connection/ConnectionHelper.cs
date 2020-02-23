@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using CoreProfiler;
+using CoreProfiler.Data;
+using Microsoft.Data.SqlClient;
 using System.Data;
 
 namespace dotNetCore31.DataAccess.Infrastructure.Helpers.Connection
@@ -31,7 +33,10 @@ namespace dotNetCore31.DataAccess.Infrastructure.Helpers.Connection
         {
             var connectionString = this._connectionStringHelper.GetConnectionString(dbName);
             var connection = new SqlConnection(connectionString);
-            return connection;
+
+            //使用CoreProfiller的connection，才能紀錄T-SQ與傳入參數
+            var dbProfiler = new DbProfiler(ProfilingSession.Current.Profiler);
+            return new ProfiledDbConnection(connection, dbProfiler);
         }
     }
 }
