@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using AutoMapper;
 using dotNetCore31.Business.Infrastructure.Mappings;
 using dotNetCore31.Business.IServices;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace dotNetCore31.WebApi
 {
@@ -44,6 +47,20 @@ namespace dotNetCore31.WebApi
                 cfg.AddProfile<ServiceMappingProfile>();
             });
             services.AddScoped<IMapper>(s => config.CreateMapper());
+
+            //Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "dotNetCore31.WebApi", Version = "v1" });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFiles = Directory.EnumerateFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly);
+
+                foreach (var xmlFile in xmlFiles)
+                {
+                    c.IncludeXmlComments(xmlFile);
+                }
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -54,6 +71,13 @@ namespace dotNetCore31.WebApi
             }
 
             app.UseRouting();
+
+            //Swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
