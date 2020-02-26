@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
+using dotNetCore31.WebApi.Infrastructure.Middlewares;
 
 namespace dotNetCore31.WebApi
 {
@@ -62,10 +63,32 @@ namespace dotNetCore31.WebApi
                     c.IncludeXmlComments(xmlFile);
                 }
             });
+
+            // RequestFilter
+            services.AddHttpContextAccessor();
+
+            //services.Configure<RequestFilterOptions>(this._configuration);
+            //services.Configure<RequestFilterOptions>(this._configuration.GetSection("RequestFilterOptions"));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //RequestFilter
+            //app.UseRequestFilter();
+
+            app.UseRequestFilter(options =>
+            {
+                //做法1:
+                var optionsFromJson = this._configuration.GetSection("RequestFilterOptions").Get<RequestFilterOptions>();
+
+                //做法2:
+                //var optionsFromJson = new RequestFilterOptions();
+                //this._configuration.GetSection("RequestFilterOptions").Bind(optionsFromJson);
+
+                options.WhiteListIpCollection = optionsFromJson.WhiteListIpCollection;
+                options.RestrictPathCollection = optionsFromJson.RestrictPathCollection;
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
